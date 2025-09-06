@@ -5,6 +5,8 @@ const { router: todoRoutes, todos} = require("./routes/todo");
 const cors = require("cors");
 const db = require("./database/db");
 const port = process.env.PORT || 3001;
+const authRoutes = require("./routes/auth.js");
+const authMiddleware = require("./middleware/auth");
 
 
 const expressLayouts = require("express-ejs-layouts");
@@ -43,6 +45,10 @@ app.get("/todo-view", (req, res) => {
     res.render("todo", { todos: todos, layout: "layouts/main-layout" });
   });
 });
+
+app.use("/api/auth", authRoutes);
+
+app.use("/api/todos", authMiddleware, todoRoutes);
 
 // GET: Mengambil semua todos
 app.get("/api/todos", (req, res) => {
@@ -99,7 +105,7 @@ app.put("/api/todos/:id", (req, res) => {
     const { id } = req.params;
     const { task, completed } = req.body;
     
-    console.log(`Menerima permintaan PUT untuk ID: ${id}. Data:, req.body`);
+    console.log(`Menerima permintaan PUT untuk ID: ${id}. Data:`, req.body);
 
     if (task === undefined && completed === undefined) {
         return res.status(400).json({ error: "Task or completed status is required" });
